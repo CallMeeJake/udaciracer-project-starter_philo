@@ -99,11 +99,24 @@ async function handleCreateRace() {
 	const race = createRace(player_id,track_id);
 
 	// TODO - update the store with the race id in the response
+	try {
+		const response = await fetch(`${SERVER}/api/races/${race}`);
+		if (!response.ok) {
+		  throw new Error('Failed to fetch race data');
+		}
+		const raceData = await response.json();
+		raceStatus = raceData.status;
+		console.log('Race Status:', raceStatus);
+	} catch (error) {
+	    console.error('Error:', error);
+	}
+
+	
 	
 	// TIP - console logging API responses can be really helpful to know what data shape you received
 	console.log("RACE: ", race)
 	// store.race_id = 
-	
+	store.race_id = 
 	// The race has been created, now start the countdown
 	// TODO - call the async function runCountdown
 	runCountdown();
@@ -151,11 +164,13 @@ async function runCountdown() {
 
 		return new Promise(resolve => {
 			// TODO - use Javascript's built in setInterval method to count down once per second
+			setInterval(timer--,1000);
 
 			// run this DOM manipulation inside the set interval to decrement the countdown for the user
 			document.getElementById('big-numbers').innerHTML = --timer
 
 			// TODO - when the setInterval timer hits 0, clear the interval, resolve the promise, and return
+			
 
 		})
 	} catch(error) {
@@ -192,6 +207,7 @@ function handleSelectTrack(target) {
 function handleAccelerate() {
 	console.log("accelerate button clicked")
 	// TODO - Invoke the API call to accelerate
+	
 }
 
 // HTML VIEWS ------------------------------------------------
@@ -348,14 +364,18 @@ function defaultFetchOpts() {
 function getTracks() {
 	console.log(`calling server :: ${SERVER}/api/tracks`)
 	// GET request to `${SERVER}/api/tracks`
-
+	return fetch(`${SERVER}/api/tracks`)
+	.then(response => response.json())
+	.catch(err => console.log("Problem with getTracks request::", err))
 	// TODO: Fetch tracks
 	// TIP: Don't forget a catch statement!
 }
 
 function getRacers() {
 	// GET request to `${SERVER}/api/cars`
-
+	return fetch(`${SERVER}/api/cars`)
+	.then(response => response.json())
+	.catch(err => console.log("Problem with getRacers request::", err))
 	// TODO: Fetch racers
 	// TIP: Do a file search for "TODO" to make sure you find all the things you need to do! There are even some vscode plugins that will highlight todos for you
 }
@@ -377,6 +397,9 @@ function createRace(player_id, track_id) {
 
 function getRace(id) {
 	// GET request to `${SERVER}/api/races/${id}`
+	return fetch(`${SERVER}/api/races/${id}`)
+	.then(response => response.json())
+	.catch(err => console.log("Problem with getRace request::", err))
 }
 
 function startRace(id) {
@@ -392,4 +415,10 @@ function accelerate(id) {
 	// POST request to `${SERVER}/api/races/${id}/accelerate`
 	// options parameter provided as defaultFetchOpts
 	// no body or datatype needed for this request
+	return fetch(`${SERVER}/api/races/${id}/accelerate`, {
+		method: "POST",
+		...defaultFetchOpts(),
+	})
+	.then(response => response.json())
+	.catch(err => console.log("Problem with accerleration request::", err))
 }
